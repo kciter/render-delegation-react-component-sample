@@ -1,13 +1,14 @@
 import { Button } from "./components/Button";
 
+const Icon = () => <span>🔴</span>;
+
 const App = () => {
   return (
     <div>
-      <Button>
-        <a href="https://www.google.com">Google</a>
-      </Button>
-      <Button asChild>
-        <a href="https://www.google.com">Google</a>
+      <Button icon={<Icon />}>This is button</Button>
+
+      <Button icon={<Icon />} asChild>
+        <a href="https://kciter.so">This is link</a>
       </Button>
     </div>
   );
