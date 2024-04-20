@@ -18,6 +18,12 @@ const App = () => {
           This is link
         </a>
       </Button>
+
+      <Button icon={<Icon />} onClick={() => alert("Hi!")} asChild>
+        <a onClick={() => alert("Hello!")} ref={childRef}>
+          Show alert
+        </a>
+      </Button>
     </div>
   );
 };

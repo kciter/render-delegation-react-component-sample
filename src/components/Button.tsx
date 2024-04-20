@@ -13,11 +13,12 @@ export type ButtonProps = AsChildProps<Props>;
 type ButtonElement = React.ElementRef<"button">;
 
 export const Button = React.forwardRef<ButtonElement, ButtonProps>((props, ref) => {
-  const { asChild, children, icon } = props;
+  const { asChild, children, icon, onClick } = props;
   const Element = asChild ? Slot : "button";
   return (
     <Element
       ref={ref}
+      onClick={onClick}
       style={{
         padding: "10px",
         border: "1px solid #000",

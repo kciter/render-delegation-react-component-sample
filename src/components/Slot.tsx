@@ -28,8 +28,7 @@ export const Slot = React.forwardRef<any, SlotProps>((props, ref) => {
       ? React.cloneElement(
           newElement,
           {
-            ...slotProps,
-            ...newElement.props,
+            ...(mergeProps(slotProps, newElement.props) as any),
             ref: ref ? composeRefs(ref, (newElement as any).ref) : (newElement as any).ref,
           },
           newChildren
@@ -39,8 +38,7 @@ export const Slot = React.forwardRef<any, SlotProps>((props, ref) => {
 
   if (React.isValidElement(children)) {
     return React.cloneElement(children, {
-      ...props,
-      ...children.props,
+      ...(mergeProps(slotProps, children.props) as any),
       ref: ref ? composeRefs(ref, (children as any).ref) : (children as any).ref,
     });
   }
@@ -58,6 +56,9 @@ function isSlottable(child: React.ReactNode): child is React.ReactElement<Slotta
   return React.isValidElement(child) && child.type === Slottable;
 }
 
+/**
+ * for refs
+ */
 type PossibleRef<T> = React.Ref<T> | undefined;
 
 function setRef<T>(ref: PossibleRef<T>, value: T) {
@@ -70,4 +71,39 @@ function setRef<T>(ref: PossibleRef<T>, value: T) {
 
 function composeRefs<T>(...refs: PossibleRef<T>[]) {
   return (node: T) => refs.forEach((ref) => setRef(ref, node));
+}
+
+/**
+ * for merging props
+ **/
+type AnyProps = Record<string, any>;
+
+function mergeProps(slotProps: AnyProps, childProps: AnyProps) {
+  const overrideProps = { ...childProps };
+
+  for (const propName in childProps) {
+    const slotPropValue = slotProps[propName];
+    const childPropValue = childProps[propName];
+
+    const isHandler = /^on[A-Z]/.test(propName);
+
+    if (isHandler) {
+      if (slotPropValue && childPropValue) {
+        overrideProps[propName] = (...args: unknown[]) => {
+          childPropValue(...args);
+          slotPropValue(...args);
+        };
+      } else if (slotPropValue) {
+        overrideProps[propName] = slotPropValue;
+      }
+    }
+    if (propName === "style") {
+      overrideProps[propName] = { ...slotPropValue, ...childPropValue };
+    }
+    if (propName === "className") {
+      overrideProps[propName] = [slotPropValue, childPropValue].filter(Boolean).join(" ");
+    }
+  }
+
+  return { ...slotProps, ...overrideProps };
 }
