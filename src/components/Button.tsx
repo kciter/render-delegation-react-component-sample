@@ -1,3 +1,4 @@
+import React from "react";
 import { AsChildProps, Slot } from "./Slot";
 import { Slottable } from "./Slottable";
 
@@ -9,11 +10,14 @@ interface Props {
 
 export type ButtonProps = AsChildProps<Props>;
 
-export const Button = ({ asChild, children, icon, ...props }: ButtonProps) => {
+type ButtonElement = React.ElementRef<"button">;
+
+export const Button = React.forwardRef<ButtonElement, ButtonProps>((props, ref) => {
+  const { asChild, children, icon } = props;
   const Element = asChild ? Slot : "button";
   return (
     <Element
-      {...props}
+      ref={ref}
       style={{
         padding: "10px",
         border: "1px solid #000",
@@ -26,4 +30,4 @@ export const Button = ({ asChild, children, icon, ...props }: ButtonProps) => {
       <Slottable>{children}</Slottable>
     </Element>
   );
-};
+});
